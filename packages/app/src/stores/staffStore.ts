@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { StaffState } from '@/types/staff';
+import { StaffState } from '../../../types/staff';
 
 const useStaffStore = create<StaffState>()((set) => ({
     isLoggedIn: false,

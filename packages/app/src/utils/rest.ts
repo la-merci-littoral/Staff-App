@@ -39,11 +39,11 @@ const handleRequest = async (url: string, options: RequestInit): Promise<RestRes
     }
 };
 
-export const get = async (path: string, params: Record<string, string>): Promise<RestResSuccess> => {
+export const get = async (path: string, params: Record<string, string> = {}): Promise<RestResSuccess> => {
     return handleRequest(bakeUrl(path, params), { method: 'GET' });
 };
 
-export const post = async (path: string, data: any, params: Record<string, string>): Promise<RestResSuccess> => {
+export const post = async (path: string, data: any = {}, params: Record<string, string> = {}): Promise<RestResSuccess> => {
     return handleRequest(bakeUrl(path, params), {
         method: 'POST',
         headers: {

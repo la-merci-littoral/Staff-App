@@ -85,6 +85,6 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     buttonText: {
-        color: '#fff'
+        color: Colors.pale
     }
 });
