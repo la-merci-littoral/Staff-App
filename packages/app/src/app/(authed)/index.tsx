@@ -3,11 +3,11 @@ import useStaffStore from "@/stores/staffStore";
 import { Href, router } from "expo-router";
 import { Colors } from "@/constants/Colors";
 import { useEffect } from "react";
-import { Icon,LogOut,TicketCheck, UserSearch } from "lucide-react";
+import {  LogOut, LucideIcon, TicketCheck, UserSearch } from "lucide-react-native";
 import type { LucideProps } from "lucide-react";
 import type React from "react";
 
-function MenuItem(props: {icon: React.ComponentType<LucideProps>, label: string, onPress: () => void, style: object}) {
+function MenuItem(props: {icon: LucideIcon, label: string, onPress: () => void, style: object}) {
 
     const styles = StyleSheet.create({
         menuItem: {

@@ -4,17 +4,12 @@ const bakeUrl = (path: string, params: Record<string, string>) => {
     return url.toString();
 }
 
-export type RestResSuccess = {
+export type RestRes<D> = {
     status: number;
-    data: any;
+    data: D;
 }
 
-export type RestResError = {
-    status: number;
-    error: string;
-}
-
-const handleResponse = async (response: Response): Promise<RestResSuccess> => {
+const handleResponse = async (response: Response): Promise<RestRes<any>> => {
     if (!response.ok) {
         let error;
         try {
@@ -23,27 +18,26 @@ const handleResponse = async (response: Response): Promise<RestResSuccess> => {
         } catch (e) {
             error = `Request failed with status ${response.status}`;
         }
-        throw { status: response.status, error: error };
+        return { status: response.status, data: error };
     }
     const data = await response.json();
     return { status: response.status, data: data };
 };
 
-const handleRequest = async (url: string, options: RequestInit): Promise<RestResSuccess> => {
+const handleRequest = async (url: string, options: RequestInit): Promise<RestRes<any>> => {
     try {
         const response = await fetch(url, options);
         return handleResponse(response);
     } catch (error: any) {
-        console.error("Request failed:", error);
-        throw { status: error.code || 500, error: error.message || "Request failed due to network issues" };
+        return {status: 500, data: null}
     }
 };
 
-export const get = async (path: string, params: Record<string, string> = {}): Promise<RestResSuccess> => {
+export const get = async <T,>(path: string, params: Record<string, string> = {}): Promise<RestRes<T>> => {
     return handleRequest(bakeUrl(path, params), { method: 'GET' });
 };
 
-export const post = async (path: string, data: any = {}, params: Record<string, string> = {}): Promise<RestResSuccess> => {
+export const post = async <T,>(path: string, data: any = {}, params: Record<string, string> = {}): Promise<RestRes<T>> => {
     return handleRequest(bakeUrl(path, params), {
         method: 'POST',
         headers: {
@@ -53,7 +47,7 @@ export const post = async (path: string, data: any = {}, params: Record<string, 
     });
 };
 
-export const put = async (path: string, data: any, params: Record<string, string>): Promise<RestResSuccess> => {
+export const put = async <T,>(path: string, data: any, params: Record<string, string>): Promise<RestRes<T>> => {
     return handleRequest(bakeUrl(path, params), {
         method: 'PUT',
         headers: {
@@ -63,6 +57,6 @@ export const put = async (path: string, data: any, params: Record<string, string
     });
 };
 
-export const del = async (path: string, params: Record<string, string>): Promise<RestResSuccess> => {
+export const del = async <T,>(path: string, params: Record<string, string>): Promise<RestRes<T>> => {
     return handleRequest(bakeUrl(path, params), { method: 'DELETE' });
 };

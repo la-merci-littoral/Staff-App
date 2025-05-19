@@ -2,7 +2,7 @@
   "name": "@lml/adal-staff-app",
   "main": "expo-router/entry",
   "version": "1.0.0",
-  "license": "none",
+  "license": "MIT",
   "scripts": {
     "start": "expo start --go",
     "android": "expo start --android",

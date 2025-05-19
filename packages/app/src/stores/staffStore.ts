@@ -1,25 +1,29 @@
 import { create } from 'zustand';
-import { StaffState } from '../../../types/staff';
+import { AuthRes, codes, StaffState } from 'types';
+import { post, RestRes } from '@/utils/rest';
 
 const useStaffStore = create<StaffState>()((set) => ({
     isLoggedIn: false,
     token: null,
     username: null,
+    roles: [],
+    name: null,
     login: async (username, password) => {
-        if (username == process.env.EXPO_PUBLIC_USERNAME! && password == process.env.EXPO_PUBLIC_PWD) {
+        const response: RestRes<AuthRes> = await post('/auth/token', {username, password})
+        if (response.status == codes.ok){
             set({
                 isLoggedIn: true,
-                token: process.env.EXPO_PUBLIC_TOKEN,
-                username: process.env.EXPO_PUBLIC_USERNAME,
-            })
+                token: response.data.token,
+                roles: response.data.roles,
+                name: response.data.name
+            });
+            return
+        } else if (response.status == codes.forbidden){
+            throw new Error('Codes invalides')
         }
     },
     logout: async () => {
-        set({
-            isLoggedIn: false,
-            token: null,
-            username: null,
-        })
+        set(useStaffStore.getInitialState())
     },
 }));
 

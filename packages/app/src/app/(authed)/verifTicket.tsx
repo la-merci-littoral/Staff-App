@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { CameraView, CameraType, useCameraPermissions } from "expo-camera"
 import { Loader, TicketX, ShieldCheck } from "lucide-react-native";
 import { get, post } from "@/utils/rest";
+import { IBooking } from "../../../../types/src";
 
 export default function VerifyTicketPage() {
 
@@ -49,9 +50,9 @@ export default function VerifyTicketPage() {
     async function verifyTicket(scannedNumber: string) {
         try {
             if (scannedNumber.match(/\d{6}/)){
-                const response = await get('/events/tickets/check'+scannedNumber)
+                const response = await get<IBooking>('/entrances/check'+scannedNumber)
                 if (response.status == 200){
-                    return response.data as string
+                    return response.data.name + " " + response.data.surname
                 } else {throw ''}
             } else {throw ''}
         } catch { throw '' }

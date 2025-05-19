@@ -2,19 +2,31 @@
   "name": "lml-staff-app-backend",
   "packageManager": "yarn@4.6.0",
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/cors": "^2",
     "@types/express": "^5",
+    "@types/jsonwebtoken": "^9",
     "@types/node": "^22.15.17",
+    "concurrently": "^9.1.2",
     "nodemon": "^3.1.10",
-    "typescript": "^5.8.3"
+    "ts-patch": "^3.3.0",
+    "typescript": "~5.8.3"
   },
   "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
-    "mongoose": "^8.14.2"
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.14.2",
+    "ts-node": "^10.9.2",
+    "types": "*",
+    "typia": "^9.3.0"
   },
   "scripts": {
-    "dev": "concurrently \"mongod --config ../mongodb.dev.cfg\" \"nodemon --watch ./src --watch ../types --exec ts-node index.ts\"",
+    "dev": "concurrently \"mongod --config ../../mongodb.dev.cfg\" \"nodemon --watch ./src --watch ../types --exec ts-node ./src/index.ts\"",
     "build": "tsc -p tsconfig.json",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "prepare": "ts-patch install"
   }
 }

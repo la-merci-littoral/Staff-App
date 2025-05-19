@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
 import useStaffStore from '../stores/staffStore';
-import { RestResError } from '../utils/rest';
 import { Href, useRouter } from 'expo-router';
 import { Colors } from '../constants/Colors';
 
@@ -9,6 +8,7 @@ export default function Login() {
     const { login } = useStaffStore();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
     const router = useRouter();
 
     const handleSubmit = async () => {
@@ -18,9 +18,7 @@ export default function Login() {
                 setPassword(() => '');
                 router.replace('/' as Href)
             })
-            .catch((error: RestResError) => {
-                Alert.alert('Error', error.error);
-            });
+            .catch((error: Error) => setError(error.message));
     };
 
     return (
@@ -44,6 +42,7 @@ export default function Login() {
                     autoCorrect={false}
                     value={password}
                 />
+                <Text style={{ ...styles.errorMessage, display: error == '' ? 'none' : 'flex' }} >{error}</Text>
                 <TouchableOpacity style={styles.button} onPress={handleSubmit}>
                     <Text style={styles.buttonText}>Login</Text>
                 </TouchableOpacity>
@@ -77,6 +76,16 @@ const styles = StyleSheet.create({
         borderRadius: 4,
         padding: 10,
         marginBottom: 10
+    },
+    errorMessage: {
+        color: Colors.redError,
+        textAlign: 'center',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        width: "100%",
+        marginBottom: 10,
+        fontSize: 15,
+        fontFamily: "Nunito_400Regular",
     },
     button: {
         backgroundColor: Colors.unitedNations,
