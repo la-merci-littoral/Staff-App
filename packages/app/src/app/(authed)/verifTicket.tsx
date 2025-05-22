@@ -4,14 +4,14 @@ import { useState, useEffect } from "react";
 import { CameraView, CameraType, useCameraPermissions } from "expo-camera"
 import { Loader, TicketX, ShieldCheck } from "lucide-react-native";
 import { get, post } from "@/utils/rest";
-import { IBooking } from "../../../../types/src";
+import { EntranceCheckRes, IBooking } from "../../../../types/src";
 
 export default function VerifyTicketPage() {
 
     const [hasRead, setReadStatus] = useState(false)
     const [number, setNumber] = useState('')
     const [validTicket, setTicketValidity] = useState(true)
-    const [personName, setPersonName] = useState('')
+    const [person, setPerson] = useState<Partial<EntranceCheckRes>>({})
 
     useEffect(() => {
         if (hasRead && !validTicket) {
@@ -29,17 +29,15 @@ export default function VerifyTicketPage() {
         )
     }
     if (!permission.granted) {
-        <View style={styles.container}>
-            <Text>La permission d'accéder à la caméra est nécessaire</Text>
-            <Button onPress={requestPermission} title="grant permission" />
-        </View>
+        requestPermission()
     }
 
     async function onCodeScan(scannedNumber: string) {
         if (!hasRead) {
             setReadStatus(true)
+            setNumber(scannedNumber)
             try {
-                setPersonName((await verifyTicket(scannedNumber))!)
+                setPerson((await verifyTicket(scannedNumber))!)
                 setTicketValidity(true)
             } catch {
                 setTicketValidity(false)
@@ -48,25 +46,23 @@ export default function VerifyTicketPage() {
     }
 
     async function verifyTicket(scannedNumber: string) {
-        try {
-            if (scannedNumber.match(/\d{6}/)){
-                const response = await get<IBooking>('/entrances/check'+scannedNumber)
-                if (response.status == 200){
-                    return response.data.name + " " + response.data.surname
-                } else {throw ''}
-            } else {throw ''}
-        } catch { throw '' }
+        if (scannedNumber.match(/\d{6}/)){
+            const response = await get<EntranceCheckRes>('/entrances/check/'+scannedNumber)
+            if (response.status == 200){
+                return response.data
+            } else {throw new Error}
+        } else {throw new Error}
     }
 
     function cleanUpCurrent() {
         setReadStatus(false)
         setTicketValidity(true)
-        setPersonName('')
+        setPerson({})
         setNumber('')
     }
 
     async function validateEntrance() {
-        const response = await post('/events/tickets/confirm'+number)
+        const response = await post('/entrances/confirm/'+number)
         if (response.status == 200){
             cleanUpCurrent()
         }
@@ -74,32 +70,43 @@ export default function VerifyTicketPage() {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.header}>Ticket Validator</Text>
+            <Text style={styles.header}>Vérification de tickets</Text>
             <View style={styles.body}>
                 <CameraView
                     barcodeScannerSettings={{ barcodeTypes: ['qr'] }}
                     onBarcodeScanned={(data) => onCodeScan(data.data)}
                     style={styles.cameraPreview}
                 ></CameraView>
-                {hasRead ?
+                {person.name ?
                     (validTicket ? (
-                        <View style={styles.infoBox}>
-                            <Text style={{ ...styles.infoLabel, fontSize: 32 }}>{personName}</Text>
-                            <TouchableOpacity style={styles.confirmButton} onPress={() => validateEntrance()}>
-                                <ShieldCheck color={Colors.cadet} />
-                                <Text style={styles.buttonText}>Confirm entrance</Text>
+                        <View style={[styles.infoBox, { backgroundColor: person.vip ? Colors.gold : Colors.cadet }]}>
+                            <View style={[styles.infoSection, {paddingBottom: 10}]}>
+                                <Text style={{ ...styles.infoLabel, fontSize: 32 }}>{person.name! + " " + person.surname!}</Text>
+                                <Text style={styles.infoLabel} >et {person.attendants! - 1} accompagnants</Text>
+                            </View>
+                            <View style={styles.infoSection}>
+                                <Text style={styles.infoLabel}>Pour l'évènement :</Text>
+                                <Text style={[styles.infoLabel, {fontWeight: 'bold'}]}>{person.event_name}</Text>
+                            </View>
+                            <View style={styles.infoSection}>
+                                <Text style={styles.infoLabel}>Catégorie :</Text>
+                                <Text style={[styles.infoLabel, { fontWeight: 'bold' }]}>{person.category}</Text>
+                            </View>
+                            <TouchableOpacity style={styles.confirmButton} onPress={validateEntrance}>
+                                <ShieldCheck color={Colors.pale} />
+                                <Text style={styles.buttonText} >Valider l'entrée</Text>
                             </TouchableOpacity>
                         </View>
                     ) : (
                         <View style={styles.infoBox}>
                             <TicketX size={40} color={Colors.pale} />
-                            <Text style={styles.infoLabel}>Invalid ticket</Text>
+                            <Text style={styles.infoLabel}>Ticket invalide</Text>
                         </View>
                     )
                     ) : (
                         <View style={styles.infoBox}>
                             <Loader color={Colors.pale} size={40} />
-                            <Text style={styles.infoLabel}>Waiting for scan</Text>
+                            <Text style={styles.infoLabel}>En attente de scan</Text>
                         </View>
                     )}
             </View>
@@ -118,7 +125,7 @@ export const styles = StyleSheet.create({
         flexGrow: 1
     },
     header: {
-        fontFamily: "BrunoAceSC_400Regular",
+        fontFamily: "Nunito_400Regular",
         color: "white",
         fontSize: 26,
         marginTop: 20
@@ -128,13 +135,14 @@ export const styles = StyleSheet.create({
         flexGrow: 1,
         width: "100%",
         alignContent: "center",
-        gap: 30
+        gap: 30,
+        maxWidth: 500,
     },
     cameraPreview: {
         borderRadius: 25,
-        borderColor: "white",
+        borderColor: Colors.argentinian,
         borderWidth: 1,
-        height: "50%",
+        height: "30%",
         width: "100%",
     },
     infoBox: {
@@ -142,16 +150,22 @@ export const styles = StyleSheet.create({
         backgroundColor: Colors.cadet,
         borderRadius: 25,
         borderWidth: 1,
-        borderColor: Colors.pale,
+        borderColor: Colors.argentinian,
         padding: 30,
         display: "flex",
         alignItems: "center",
         justifyContent: "space-evenly",
-        height: "35%"
+        //height: "35%"
+        flexGrow: 1,
+    },
+    infoSection: { 
+        display: "flex", 
+        gap: 0, 
+        alignItems: "center" 
     },
     infoLabel: {
         color: Colors.pale,
-        fontFamily: "Oxanium_400Regular",
+        fontFamily: "Nunito_400Regular",
         fontSize: 20
     },
     confirmButton: {
@@ -168,7 +182,7 @@ export const styles = StyleSheet.create({
         borderWidth: 1
     },
     buttonText: {
-        color: Colors.lapis,
+        color: Colors.pale,
         fontSize: 20
     }
 })

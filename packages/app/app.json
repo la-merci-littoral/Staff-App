@@ -10,11 +10,18 @@
     "ios": {
       "supportsTablet": true
     },
+    "jsEngine": "hermes",
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": [
+        "CAMERA",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "fr.amisdulittoral.staffapp"
     },
     "web": {
       "bundler": "metro",
@@ -25,17 +32,25 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/splash-icon-light.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
       ],
       "expo-font",
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-camera"
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "197fe89d-4e02-4768-84f6-156b69d79b83"
+      }
+    },
+    "owner": "lamercilittoral"
   }
 }

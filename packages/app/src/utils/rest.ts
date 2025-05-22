@@ -1,3 +1,5 @@
+import useStaffStore from "@/stores/staffStore";
+
 const bakeUrl = (path: string, params: Record<string, string>) => {
     const url = new URL(path, process.env.EXPO_PUBLIC_BASE_URL);
     url.search = new URLSearchParams(params).toString();
@@ -20,12 +22,15 @@ const handleResponse = async (response: Response): Promise<RestRes<any>> => {
         }
         return { status: response.status, data: error };
     }
-    const data = await response.json();
-    return { status: response.status, data: data };
+    return { status: response.status, data: response.body === null ? null : await response.json() };
 };
 
 const handleRequest = async (url: string, options: RequestInit): Promise<RestRes<any>> => {
     try {
+        options.headers = {
+            ...options.headers,
+            'Authorization': useStaffStore.getState().token ? useStaffStore.getState().token! : '',
+        };
         const response = await fetch(url, options);
         return handleResponse(response);
     } catch (error: any) {

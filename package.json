@@ -4,5 +4,7 @@
   "workspaces": [
     "packages/*"
   ],
-  "license": "none"
+  "license": "none",
+  "private": true,
+  "version": "0.0.0"
 }

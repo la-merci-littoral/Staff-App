@@ -28,5 +28,6 @@
     "build": "tsc -p tsconfig.json",
     "start": "node dist/index.js",
     "prepare": "ts-patch install"
-  }
+  },
+  "version": "0.0.0"
 }

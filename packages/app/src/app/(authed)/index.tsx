@@ -4,7 +4,6 @@ import { Href, router } from "expo-router";
 import { Colors } from "@/constants/Colors";
 import { useEffect } from "react";
 import {  LogOut, LucideIcon, TicketCheck, UserSearch } from "lucide-react-native";
-import type { LucideProps } from "lucide-react";
 import type React from "react";
 
 function MenuItem(props: {icon: LucideIcon, label: string, onPress: () => void, style: object}) {
@@ -58,12 +57,6 @@ export default function Index() {
             <View style={styles.wrapper}>
                 <Text style={styles.title}>Staff Panel</Text>
                 <View style={styles.menuList}>
-                    <MenuItem
-                        icon={UserSearch}
-                        label="Validation d'adhésion"
-                        onPress={() => router.push("/verifMember")}
-                        style={styles.menuItem}
-                    />
                     <MenuItem 
                         icon={TicketCheck} 
                         label="Vérification de tickets" 

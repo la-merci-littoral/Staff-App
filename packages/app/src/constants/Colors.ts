@@ -6,4 +6,5 @@ export const Colors = {
   unitedNations: "#5899e2",
   pale: "#f5e0eb",
   redError: "#ff4d4d",
+  gold: "#B38D00"
 };
