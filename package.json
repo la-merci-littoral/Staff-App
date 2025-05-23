@@ -1,6 +1,5 @@
 {
   "name": "lml-staff-app",
-  "packageManager": "yarn@4.6.0",
   "workspaces": [
     "packages/*"
   ],

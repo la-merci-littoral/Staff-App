@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "lml-staff-app",
+    "name": "LML Staff",
     "slug": "lml-staff-app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "scheme": "myapp",
+    "scheme": "lml-staff-app",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {

@@ -1,6 +1,5 @@
 {
   "name": "lml-staff-app-backend",
-  "packageManager": "yarn@4.6.0",
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
     "@types/cors": "^2",

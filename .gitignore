@@ -39,4 +39,6 @@ app-example
 /packages/app/.env.development
 /packages/backend/.env.development
 
+/.yarn/install-state.gz
+
 oldnode

@@ -1,0 +1,88 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment: production-ionos
+    steps:
+    
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18 
+        
+      - name: Create .env.production file from GitHub Secrets
+        run: |
+          echo "PORT=${{ secrets.PORT }}" >> .env.production
+          echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> .env.production
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env.production
+
+      - name: Build
+        run: |
+          rm package.json
+          cd packages
+          rm -rf app
+          cd backend
+          corepack enable
+          yarn install
+          yarn build
+
+      - name: Transfer Backend to VPS
+        uses: appleboy/scp-action@v0.1.1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          target: /web/lml-staff-app/
+          source: "packages/backend/*,.env.production"
+          overwrite: true
+      
+      - name: Transfer Nginx Config to VPS
+        uses: appleboy/scp-action@v0.1.1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          target: /etc/nginx/sites-available/
+          source: nginx.conf
+          overwrite: true
+
+      - name: Reload Backend on VPS
+        uses: appleboy/ssh-action@v0.1.1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          script: |
+            cd /web/lml-staff-app/packages
+            mv ../.env.production ./backend/dist/backend/
+            yarn install
+            if pm2 describe lml-staff-app-backend > /dev/null; then
+              NODE_ENV=production pm2 restart lml-staff-app-backend --update-env
+            else
+              NODE_ENV=production pm2 start /web/lml-staff-app/packages/backend/dist/backend/src/index.js --name lml-staff-app-backend
+            fi
+            pm2 save
+      
+      - name: Reload Nginx on VPS
+        uses: appleboy/ssh-action@v0.1.1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          script: |
+            mv /etc/nginx/sites-available/nginx.conf /etc/nginx/sites-available/lml-staff-app.conf
+            ln -sf /etc/nginx/sites-available/lml-staff-app.conf /etc/nginx/sites-enabled/lml-staff-app.conf
+            nginx -s reload

@@ -33,6 +33,7 @@ router.use((req, res, next) => {
         })
     } else { next() }
 })
+
 router.use('/auth', authHandler)
 router.use('/entrances', entranceHandler)
 

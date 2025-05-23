@@ -75,13 +75,13 @@ export default function VerifyTicketPage() {
                 <CameraView
                     barcodeScannerSettings={{ barcodeTypes: ['qr'] }}
                     onBarcodeScanned={(data) => onCodeScan(data.data)}
-                    style={styles.cameraPreview}
+                    style={[styles.cameraPreview, { display: (person.booking_id ? 'none' : 'flex') }]}
                 ></CameraView>
-                {person.name ?
+                {person.booking_id ?
                     (validTicket ? (
                         <View style={[styles.infoBox, { backgroundColor: person.vip ? Colors.gold : Colors.cadet }]}>
                             <View style={[styles.infoSection, {paddingBottom: 10}]}>
-                                <Text style={{ ...styles.infoLabel, fontSize: 32 }}>{person.name! + " " + person.surname!}</Text>
+                                <Text style={{ ...styles.infoLabel, fontSize: 32 }}>{person.name ? person.name! + " " + person.surname! : "Inconnu"}</Text>
                                 <Text style={styles.infoLabel} >et {person.attendants! - 1} accompagnants</Text>
                             </View>
                             <View style={styles.infoSection}>
@@ -142,7 +142,7 @@ export const styles = StyleSheet.create({
         borderRadius: 25,
         borderColor: Colors.argentinian,
         borderWidth: 1,
-        height: "30%",
+        height: "60%",
         width: "100%",
     },
     infoBox: {
@@ -166,7 +166,8 @@ export const styles = StyleSheet.create({
     infoLabel: {
         color: Colors.pale,
         fontFamily: "Nunito_400Regular",
-        fontSize: 20
+        fontSize: 20,
+        textAlign: "center",
     },
     confirmButton: {
         display: "flex",
